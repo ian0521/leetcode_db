@@ -1,6 +1,6 @@
 select id, movie, description, rating
 from cinema c
-where mod(id, 2) = 1 and description != 'boring'
+where mod(id, 2) = 1 and description != 'boring' -- can use id % 2 = 1 too
 order by rating desc
 
 def not_boring_movies(
