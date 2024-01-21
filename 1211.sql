@@ -8,6 +8,7 @@ where query_name is not null
 group by query_name
 
 def queries_stats(queries: pd.DataFrame) -> pd.DataFrame:
+    -- method 1
     queries["quality"] = queries.apply(
         lambda row: row["rating"]/row["position"] + 1e-10,
         axis=1,
@@ -29,4 +30,16 @@ def queries_stats(queries: pd.DataFrame) -> pd.DataFrame:
         how="outer",
         on=["query_name"],
     ).fillna(0)
+    return res[["query_name", "quality", "poor_query_percentage"]]
+
+    -- method 2
+    queries = queries.assign(
+        quality = queries.rating/queries.position + 1e-10,
+        poor_query_percentage = (queries.rating < 3).astype(int)*100
+    )
+    queries = queries.assign(
+        quality = lambda row: row.rating/row.position + 1e-10,
+        poor_query_percentage = lambda row: (row.rating < 3).astype(int)*100
+    )
+    res = queries.groupby(["query_name"])[["quality", "poor_query_percentage"]].mean().round(2).reset_index()
     return res[["query_name", "quality", "poor_query_percentage"]]
